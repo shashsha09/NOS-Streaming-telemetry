@@ -1,0 +1,160 @@
+username: lab
+password: ${GNMI_PASS}
+timeout: 10s
+insecure: true
+
+# Default subscription values
+target-defaults:
+  port: 57400
+  subscriptions:
+     - sub-count
+     - session-count
+     - dhcp-stats
+     - group-if-stats
+     - nat-stats
+     - cpu-stats
+     - mempool
+     - card-temp
+     - mda-temp
+     - packet-stats
+     - alarms
+     - interface-traffic
+     - fabric-throughput
+     - topology
+
+# Define your SROS targets (using IP addresses and port 57400)
+targets:
+  "100.127.188.90": {}
+  "100.127.188.89": {}
+  "100.127.188.41": {}
+
+# Subscription definitions
+subscriptions:
+  sub-count:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/subscriber-mgmt/statistics/sessions[counter=*]/current-value
+      - /state/subscriber-mgmt/statistics/sessions[counter=*]/peak-value
+      - /state/subscriber-mgmt/statistics/total-hosts[counter=subhosts]/current-value 
+      - /state/subscriber-mgmt/statistics/total-hosts[counter=subhosts]/peak-value 
+
+  session-count:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/subscriber-mgmt/statistics/ipv4-hosts[counter=*]/current-value
+      - /state/subscriber-mgmt/statistics/ipv4-hosts[counter=*]/peak-value 
+      - /state/subscriber-mgmt/statistics/ipv6-hosts[counter=*]/current-value 
+      - /state/subscriber-mgmt/statistics/ipv6-hosts[counter=*]/peak-value 
+
+  dhcp-stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv4[name=*]/pool[pool-name=*]/statistics/local/free-addresses
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv4[name=*]/pool[pool-name=*]/statistics/local/declined-addresses
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv4[name=*]/pool[pool-name=*]/statistics/local/provisioned-addresses
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv6[name=*]/pool[pool-name=*]/statistics/local/stable-state
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv6[name=*]/statistics/dropped/address-exhaustion
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv6[name=*]/statistics/leases-expired
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv6[name=*]/statistics/rx-declines
+
+  group-if-stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/service/vprn[service-name=*]/subscriber-interface[interface-name=*]/group-interface[group-interface-name=*]/statistics
+
+  nat-stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/service/vprn[service-name=*]/subscriber-interface[interface-name=*]/group-interface[group-interface-name=*]/statistics
+
+  cpu-stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/system/cpu[sample-period=*]/summary/total/cpu-time 
+      - /state/system/cpu[sample-period=*]/summary/total/time-used 
+      - /state/system/cpu[sample-period=*]/summary/total/cpu-usage
+
+  mempool:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/system/memory-pools/summary
+      
+  card-temp:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/card[slot-number=*]/hardware-data/temperature
+      
+  mda-temp:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/card[slot-number=*]/mda[mda-slot=*]/hardware-data/temperature
+
+  packet-stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/subscriber-mgmt/subscriber[subscriber-id=*]/sla-profile-instance[id=*]/egress/qos/queue[queue-id=*]/statistics/profile/out-exceed-profile-dropped-packets
+      - /state/subscriber-mgmt/subscriber[subscriber-id=*]/sla-profile-instance[id=*]/egress/qos/queue[queue-id=*]/statistics/profile/out-exceed-profile-forwarded-packets
+
+  alarms:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/system/alarms/active[raised-time=*]
+      - /state/system/alarms/cleared[cleared-time=*]
+
+  interface-traffic:
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/port[port-id=*]/statistics/in-octets
+      - /state/port[port-id=*]/statistics/out-octets
+      - /state/port[port-id=*]/statistics/in-errors
+      - /state/port[port-id=*]/statistics/out-errors
+
+  fabric-throughput:
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/port[port-id=*]/statistics/in-octets
+      - /state/port[port-id=*]/statistics/out-octets
+
+  topology:
+    stream-mode: on-change
+    paths:
+      - /state/system/lldp/interfaces/interface[interface-name=*]/neighbors
+
+  chassis-info:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 60s
+    paths:
+    - /system/platform/components/component[name="Chassis"]/state/model-name
+    - /system/platform/components/component[name="Chassis"]/state/serial-number
+    - /system/platform/components/component[name="Chassis"]/state/vendor
+
+# Output configuration for Prometheus
+outputs:
+  prom-output:
+    type: prometheus
+    listen: :9281

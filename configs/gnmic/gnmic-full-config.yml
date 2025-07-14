@@ -1,0 +1,280 @@
+username: lab
+password: ${GNMI_PASS}
+timeout: 10s
+insecure: true
+
+# Default subscription values
+target-defaults:
+  port: 57400
+  subscriptions:
+     - sub-count
+     - session-count
+     - dhcp-stats
+     - group-if-stats
+     - nat-stats
+     - sros_system
+     - card-temp
+     - mda-temp
+     - packet-stats
+     - alarms
+     - interface-traffic
+     - fabric-throughput
+     - topology
+     - sros_ports_stats
+     - sros_router_bgp
+     - sros_router_interface
+     - sros_router_isis
+     - sros_router_route_table
+     - sros_if_oper_state
+     - sros_if_stats
+
+# Define your SROS targets (using IP addresses and port 57400)
+targets:
+  "100.127.188.90": {}
+  "100.127.188.89": {}
+
+# Subscription definitions
+subscriptions:
+  sub-count:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/subscriber-mgmt/statistics/sessions[counter=*]/current-value
+      - /state/subscriber-mgmt/statistics/sessions[counter=*]/peak-value
+      - /state/subscriber-mgmt/statistics/total-hosts[counter=subhosts]/current-value 
+      - /state/subscriber-mgmt/statistics/total-hosts[counter=subhosts]/peak-value 
+
+  session-count:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/subscriber-mgmt/statistics/ipv4-hosts[counter=*]/current-value
+      - /state/subscriber-mgmt/statistics/ipv4-hosts[counter=*]/peak-value 
+      - /state/subscriber-mgmt/statistics/ipv6-hosts[counter=*]/current-value 
+      - /state/subscriber-mgmt/statistics/ipv6-hosts[counter=*]/peak-value 
+
+  dhcp-stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv4[name=*]/pool[pool-name=*]/statistics/local/free-addresses
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv4[name=*]/pool[pool-name=*]/statistics/local/declined-addresses
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv4[name=*]/pool[pool-name=*]/statistics/local/provisioned-addresses
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv6[name=*]/pool[pool-name=*]/statistics/local/stable-state
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv6[name=*]/statistics/dropped/address-exhaustion
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv6[name=*]/statistics/leases-expired
+      - /state/service/vprn[service-name=*]/dhcp-server/dhcpv6[name=*]/statistics/rx-declines
+
+  group-if-stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/service/vprn[service-name=*]/subscriber-interface[interface-name=*]/group-interface[group-interface-name=*]/statistics
+
+  nat-stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/service/vprn[service-name=*]/subscriber-interface[interface-name=*]/group-interface[group-interface-name=*]/statistics
+
+  sros_system:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/system/cpu[sample-period=1]
+      - /state/system/memory-pools/
+      
+  card-temp:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/card[slot-number=*]/hardware-data/temperature
+      
+  mda-temp:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/card[slot-number=*]/mda[mda-slot=*]/hardware-data/temperature
+
+  packet-stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/subscriber-mgmt/subscriber[subscriber-id=*]/sla-profile-instance[id=*]/egress/qos/queue[queue-id=*]/statistics/profile/out-exceed-profile-dropped-packets
+      - /state/subscriber-mgmt/subscriber[subscriber-id=*]/sla-profile-instance[id=*]/egress/qos/queue[queue-id=*]/statistics/profile/out-exceed-profile-forwarded-packets
+
+  alarms:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/system/alarms/active[raised-time=*]
+      - /state/system/alarms/cleared[cleared-time=*]
+
+  interface-traffic:
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/port[port-id=*]/statistics/in-octets
+      - /state/port[port-id=*]/statistics/out-octets
+      - /state/port[port-id=*]/statistics/in-errors
+      - /state/port[port-id=*]/statistics/out-errors
+
+  fabric-throughput:
+    stream-mode: sample
+    sample-interval: 10s
+    paths:
+      - /state/port[port-id=*]/statistics/in-octets
+      - /state/port[port-id=*]/statistics/out-octets
+
+  topology:
+    stream-mode: on-change
+    paths:
+      - /state/system/lldp/interfaces/interface[interface-name=*]/neighbors
+
+  chassis-info:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 60s
+    paths:
+    - /system/platform/components/component[name="Chassis"]/state/model-name
+    - /system/platform/components/component[name="Chassis"]/state/serial-number
+    - /system/platform/components/component[name="Chassis"]/state/vendor
+
+  sros_ports_stats:
+    paths:
+      - /state/port/oper-state
+      - /state/port/statistics/
+      - /state/port/ethernet/statistics/
+    stream-mode: sample
+    sample-interval: 5s
+  
+  sros_router_bgp:
+    paths:
+      - /state/router/bgp/statistics/
+      - /state/router/bgp/statistics/routes-per-family/
+      - /state/router/bgp/neighbor/statistics/
+    stream-mode: sample
+    sample-interval: 5s
+  
+  sros_router_interface:
+    paths:
+      - /state/router/interface/ipv4/statistics/
+      - /state/router/interface/ipv6/statistics/
+      - /state/router/interface/statistics/
+    stream-mode: sample
+    sample-interval: 5s
+  
+  sros_router_isis:
+    paths:
+      - /state/router/isis/statistics/
+    stream-mode: sample
+    sample-interval: 5s
+
+  sros_router_route_table:
+    paths:
+      - /state/router/route-table/unicast/ipv4/statistics/
+      - /state/router/route-table/unicast/ipv6/statistics/
+    stream-mode: sample
+    sample-interval: 5s
+
+  sros_if_oper_state:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 5s
+    paths:
+      - /state/port[port-id=*]/oper-state
+
+  sros_if_stats:
+    mode: stream
+    stream-mode: sample
+    sample-interval: 5s
+    paths:
+      - /state/port[port-id=*]/statistics
+
+# Output configuration for Prometheus
+outputs:
+  prom-output:
+    type: prometheus
+    listen: :9281
+    path: /metrics
+    metric-prefix:  gnmic
+    append-subscription-name: true
+    export-timestamps: true
+    strings-as-labels: true
+    debug: false
+    event-processors:
+      - trim-sros-prefixes
+      - add-labels
+      - trim-regex
+      - group-by-interface
+      - up-down-map
+
+processors:
+  trim-sros-prefixes:
+    event-strings:
+      value-names:
+        - "^/state/.*"
+      transforms:
+        - trim-prefix:
+            apply-on: "name"
+            prefix: "/state"
+  add-labels:
+    # processor type
+    event-extract-tags:
+      value-names:
+        - /router/route-table/unicast/(?P<family>[a-zA-Z0-9-_:]+)/statistics/(?P<protocol>[a-zA-Z0-9-_:]+)/([a-zA-Z0-9-_:]+)
+        - /router/bgp/statistics/routes-per-family/(?P<family>[a-zA-Z0-9-_:]+)/([a-zA-Z0-9-_:]+)
+        - /router/interface/(?P<family>[a-zA-Z0-9-_:]+)/statistics/([a-zA-Z0-9-_:]+)
+        - /router/bgp/neighbor/statistics/family-prefix/(?P<family>[a-zA-Z0-9-_:]+)/([a-zA-Z0-9-_:]+)
+  trim-regex:
+    event-strings:
+      value-names:
+        - ".*"
+      transforms:
+        - replace:
+            apply-on: "name"
+            keep: false
+            old: "/router/route-table/unicast/([a-zA-Z0-9-_:]+)/statistics/([a-zA-Z0-9-_:]+)/([a-zA-Z0-9-_:]+)"
+            new: "/router/route-table/unicast/$3"
+        - replace:
+            apply-on: "name"
+            keep: false
+            old: "/router/bgp/statistics/routes-per-family/([a-zA-Z0-9-_:]+)/([a-zA-Z0-9-_:]+)"
+            new: "/router/bgp/statistics/routes-per-family/$2"
+        - replace:
+            apply-on: "name"
+            keep: false
+            old: "/router/interface/([a-zA-Z0-9-_:]+)/statistics/([a-zA-Z0-9-_:]+)"
+            new: "/router/interface/statistics/$2"
+        - replace:
+            apply-on: "name"
+            keep: false
+            old: "/router/bgp/neighbor/statistics/family-prefix/([a-zA-Z0-9-_:]+)/([a-zA-Z0-9-_:]+)"
+            new: "/router/bgp/neighbor/statistics/family-prefix/$2"
+  group-by-interface:
+    event-group-by:
+      tags:
+        - interface_name
+  up-down-map:
+    event-strings:
+      value-names:
+        - oper-state
+      transforms:
+        - replace:
+            apply-on: "value"
+            old: "up"
+            new: "1"
+        - replace:
+            apply-on: "value"
+            old: "down"
+            new: "0"

@@ -1,0 +1,38 @@
+#GNMIc Config File
+
+username: lab
+timeout: 10s
+
+
+ip-verify: true
+  #insecure: true
+  #tls-key: /path/to/client.key
+  #tls-cert: /path/to/client.crt
+  #tls-ca: /path/to/ca.crt
+
+common_subscribers: &common_subs
+  port: 57400
+  skip-verify: true
+  insecure: false
+  password: ${GNMI_PASS}
+  subscriptions:
+    - cpu-stats  
+  
+targets:
+  100.127.188.89: *common_subs
+  100.127.188.90: *common_subs
+  100.127.188.41: *common_subs
+ 
+subscriptions:
+  cpu-stats:
+    mode: stream
+    paths:
+      - /state/system/cpu[sample-period=60]
+    stream-mode: sample
+    sample-interval: 60s
+
+outputs:
+  prom-output:
+    type: prometheus
+    listen: 9273
+ 

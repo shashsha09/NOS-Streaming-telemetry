@@ -1,0 +1,3 @@
+2025/04/21 18:43:10.872577 [gnmic] version=0.40.0, commit=3f13e44d, date=2025-01-27T22:03:58Z, gitURL=https://github.com/openconfig/gnmic, docs=https://gnmic.openconfig.net
+2025/04/21 18:43:10.872632 [gnmic] using config file "gnmic-full-config.yml"
+Error: no subscriptions or inputs configuration found

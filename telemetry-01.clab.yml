@@ -1,0 +1,76 @@
+# Copyright 2020 Nokia
+# Licensed under the BSD 3-Clause License.
+# SPDX-License-Identifier: BSD-3-Clause
+
+name: telemetry-lab01 #  name will identify the topology to be used by containerlab 
+prefix: ""
+
+mgmt:
+  network: telemetry-network # network is being create but will not be used to manage the nodes as they are in host mode
+
+topology:
+
+  kinds:
+    linux:
+      image: ghcr.io/srl-labs/network-multitool
+
+  nodes:
+
+    ### TELEMETRY STACK ###
+    telemetry-gnmic: #name to identify GNMIc container
+      kind: linux
+      network-mode: host # host mode will point to HostOS IP address
+      image: ghcr.io/openconfig/gnmic:latest #latest gnmic image being used. Can be locker to one version 
+      binds:
+        - configs/gnmic/gnmic-full-config.yml:/gnmic-config.yml:ro #gnmic origin file stored under ~containerlab/LAB_NAME/configs/gnmic
+      cmd: --config /gnmic-config.yml --log subscribe
+      group: "10" # group 10 is assigned to the nodes of a telemetry stack
+
+    telemetry-prometheus: #name to identify prometheus container
+      kind: linux
+      network-mode: host
+      image: quay.io/prometheus/prometheus:latest #latest prometheus version used. Can be locked to one version
+      binds:
+      - configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro #prometheus origin file stored under ~containerlab/LAB_NAME/configs/prometheus
+      cmd: --config.file=/etc/prometheus/prometheus.yml
+      ports:
+        - 9090:9090 #ports to be used to access Prometheus
+      group: "10"
+
+    telemetry-grafana:
+      kind: linux
+      network-mode: host
+      image: grafana/grafana:latest #latest Grafana version userd. Can be locked to one version
+      binds:
+      - configs/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yaml:ro #grafana origin datasource file stored under ~containerlab/LAB_NAME/configs/grafana
+      - configs/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro #grafana origin dashboard file stored under ~containerlab/LAB_NAME/configs/grafana - this should be an empty file in the initial deployment
+      - configs/grafana/dashboards:/var/lib/grafana/dashboards
+      ports:
+        - 3000:3000 #ports to be used to access Grafana
+      group: "10"
+
+    ### LOGGING STACK ###
+    telemetry-promtail:
+      kind: linux
+      #mgmt-ipv4: 100.127.189.43
+      network-mode: host
+      image: grafana/promtail:3.2.0
+      binds:
+        - configs/promtail:/etc/promtail
+      cmd: --config.file=/etc/promtail/promtail-config.yml
+      ports:
+        - 9080:9080
+
+    telemetry-loki:
+      kind: linux
+      #mgmt-ipv4: 100.127.189.44
+      network-mode: host
+      image: grafana/loki:3.2.0
+      binds:
+        - configs/loki:/etc/loki
+      cmd: --config.file=/etc/loki/loki-config.yml
+      ports:
+        - 3100:3100
+
+ # links:
+

@@ -1,0 +1,26 @@
+{
+  "version": "0.8.0",
+  "supported-models": [
+    {
+      "name": "nokia-conf",
+      "organization": "Nokia",
+      "version": "24.10.R3"
+    },
+    {
+      "name": "nokia-state",
+      "organization": "Nokia",
+      "version": "24.10.R3"
+    },
+    {
+      "name": "nokia-li-state",
+      "organization": "Nokia",
+      "version": "24.10.R3"
+    }
+  ],
+  "encodings": [
+    "JSON",
+    "BYTES",
+    "PROTO",
+    "JSON_IETF"
+  ]
+}
