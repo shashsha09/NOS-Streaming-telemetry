@@ -1,0 +1,7 @@
+# runtime / generated
+*.log
+clab-*/
+__pycache__/
+*.pcap
+# big HTML exports you don’t need in git
+index.html*
