@@ -38,7 +38,7 @@ host (stack: **containerlab → gNMIc → Prometheus → Grafana**).
 
 ## Quick Start
 
-```bash
+```
 git clone https://github.com/shashsha09/NOS-Streaming-telemetry.git
 cd NOS-Streaming-telemetry
 
@@ -53,7 +53,7 @@ containerlab deploy -t lab/clab.yml
 
 Tear down:
 
-```bash
+```
 containerlab destroy -t lab/clab.yml
 ```
 
@@ -107,7 +107,7 @@ NOS-Streaming-telemetry/
 
 ## Handy gNMIc Commands
 
-```bash
+```
 # Capabilities (BNG-01)
 gnmic -a 100.127.188.89:57400 -u lab -p Nokia_ESL! --insecure capabilities
 
@@ -141,7 +141,7 @@ Maintainer  [@shashsha09](https://github.com/shashsha09) • open an Issue for q
 
 ### Commit the update
 
-```bash
+```
 git add README.md
 git commit -m "README: strip Loki/Promtail, drop secrets export"
 git push
