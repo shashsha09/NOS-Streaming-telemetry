@@ -1,16 +1,41 @@
+
 ````markdown
-# NOS Streaming Telemetry Lab
+# NOS Streaming Telemetry Lab  (BNG Express Edition)
 
-End-to-end demo of **Nokia SR OS** streaming telemetry on a single Ubuntu host  
-(Stack: **containerlab → gNMIc → Prometheus → Grafana**).
+The **Nokia Streaming Telemetry Lab** showcases real-time monitoring for both
+**Nokia Service Router OS (SR OS)** and **SR Linux** devices.  
 
-| Component | Management IP | Default Creds | Notes |
-|-----------|---------------|---------------|-------|
-| **Telemetry Server** | **100.127.188.111** | `root / Nokia2018!` | Ubuntu 22/24 LTS; runs all containers |
-| OTT-ESL-BNG-01 | 100.127.188.89 | `lab / Nokia_ESL!` | gNMI port 57400 |
-| OTT-ESL-BNG-02 | 100.127.188.90 | `lab / Nokia_ESL!` | gNMI port 57400 |
-| OTT-ESL-IXR-X01 | 100.127.188.162 | — | *(future expansion)* |
-| OTT-ESL-IXR-X02 | 100.127.188.163 | — | *(future expansion)* |
+This lab demonstrates how to:
+
+* stream telemetry directly from SR OS / SR Linux routers with **gNMIc**  
+* ingest the metrics into **Prometheus** and visualise them in **Grafana**  
+* achieve controller-free, real-time network visibility—an lightweight
+  alternative to large NMS / NSP deployments.
+
+Self-contained lab for **Nokia SR OS** streaming telemetry on a single Ubuntu
+host (stack: **containerlab → gNMIc → Prometheus → Grafana**).
+
+![Streaming-telemetry topology](docs/topology.png)
+
+
+| Component            | Management IP      | Default Creds        | Notes                              |
+|----------------------|--------------------|----------------------|------------------------------------|
+| **Telemetry Server** | **100.127.188.111**| `root / Nokia2018!`  | Ubuntu 22/24 LTS – runs all containers |
+| OTT-ESL-BNG-01       | 100.127.188.89     | `lab / Nokia_ESL!`   | gNMI port 57400                    |
+| OTT-ESL-BNG-02       | 100.127.188.90     | `lab / Nokia_ESL!`   | gNMI port 57400                    |
+| OTT-ESL-IXR-X01      | 100.127.188.162    | —                    | *(future expansion)*               |
+| OTT-ESL-IXR-X02      | 100.127.188.163    | —                    | *(future expansion)*               |
+
+---
+
+## Prerequisites
+
+| Tool         | Install (Ubuntu)                                                               | Purpose                       |
+|--------------|--------------------------------------------------------------------------------|-------------------------------|
+| **Git**      | `sudo apt update && sudo apt install -y git`                                   | Clone this repository         |
+| **Docker**   | `sudo apt install -y docker.io` & add user to `docker` group                   | Container runtime             |
+| **containerlab** | `curl -sL https://get.containerlab.dev \| bash`                            | Deploy topology               |
+| **gNMIc CLI** (optional) | `bash -c "$(curl -sL https://get-gnmic.openconfig.net)"`           | Ad-hoc gNMI queries           |
 
 ---
 
@@ -20,28 +45,42 @@ End-to-end demo of **Nokia SR OS** streaming telemetry on a single Ubuntu host
 git clone https://github.com/shashsha09/NOS-Streaming-telemetry.git
 cd NOS-Streaming-telemetry
 
-# 1 – supply secrets (do NOT commit real passwords)
-export GNMI_USER=lab
-export GNMI_PASS=Nokia_ESL!
-export GRAFANA_PASS=Nokia2018!
-
-# 2 – deploy the full stack
+# deploy the lab
 containerlab deploy -t lab/clab.yml
-
-# 3 – (optional) watch live telemetry scroll by
-gnmic --config lab/configs/gnmic/gnmic-full-config.yml subscribe
 ````
 
-| Service        | URL (after deploy)                                                                  |
-| -------------- | ----------------------------------------------------------------------------------- |
-| **Prometheus** | [http://100.127.188.111:9090](http://100.127.188.111:9090)                          |
-| **Grafana**    | [http://100.127.188.111:3000](http://100.127.188.111:3000)  `admin / $GRAFANA_PASS` |
+| Service    | URL                                                        | Credentials                                  |
+| ---------- | ---------------------------------------------------------- | -------------------------------------------- |
+| Prometheus | [http://100.127.188.111:9090](http://100.127.188.111:9090) | —                                            |
+| Grafana    | [http://100.127.188.111:3000](http://100.127.188.111:3000) | `admin / Nokia2018!` ← change on first login |
 
-Destroy lab:
+Tear down:
 
 ```bash
 containerlab destroy -t lab/clab.yml
 ```
+
+---
+
+## Router-Side gRPC enable (copy & paste)
+
+```text
+configure system grpc
+    allow-unsecure-connection
+    no shutdown
+exit
+
+configure system security user "lab"
+    password "Nokia_ESL!"
+    access console ftp netconf grpc
+    console
+        no member "default"
+        member "administrative"
+    exit
+exit
+```
+
+Apply to each BNG so gNMI telemetry can stream to the server.
 
 ---
 
@@ -50,60 +89,46 @@ containerlab destroy -t lab/clab.yml
 ```
 NOS-Streaming-telemetry/
 ├─ lab/
-│  ├─ clab.yml                     # containerlab topology
+│  ├─ clab.yml                   # containerlab topology
 │  └─ configs/
-│     ├─ gnmic/                    # gNMIc subscriptions & processors
-│     ├─ prometheus/               # prometheus.yml
-│     └─ grafana/                  # datasource + dashboards
-├─ scripts/                        # helper scripts (optional)
-├─ docs/                           # diagrams / markdown (optional)
-├─ Makefile                        # convenience targets (deploy / destroy)
+│     ├─ gnmic/                  # gNMIc subscriptions & processors
+│     ├─ prometheus/             # prometheus.yml
+│     └─ grafana/                # datasource + dashboards
 └─ README.md
 ```
 
 ---
 
-## How It Works 
-1. **containerlab** starts 5 containers: `gnmic`, `prometheus`, `grafana`, `loki`, `promtail`.
-2. **gNMIc** streams \~15 telemetry subscriptions (CPU, interface stats, DHCP, BGP…) from both BNGs.
-3. **Prometheus** scrapes gNMIc at `http://localhost:9281/metrics` every 5 s.
-4. **Grafana** auto-loads JSON dashboards from `lab/configs/grafana/dashboards/`.
+## How It Works
+
+* `containerlab` starts **three containers**: **gnmic, prometheus, grafana**.
+* gNMIc streams telemetry (CPU, interface, DHCP, BGP …) from the BNGs.
+* Prometheus scrapes gNMIc at **[http://localhost:9281/metrics](http://localhost:9281/metrics)** every 5 s.
+* Grafana auto-loads dashboards from `lab/configs/grafana/dashboards/`.
 
 ---
 
-## Handy CLI Snippets
+## Handy gNMIc Commands
 
 ```bash
-# Check gNMI capabilities on BNG-01
-gnmic -a 100.127.188.89:57400 -u $GNMI_USER -p $GNMI_PASS --insecure capabilities
+# Capabilities (BNG-01)
+gnmic -a 100.127.188.89:57400 -u lab -p Nokia_ESL! --insecure capabilities
 
-# Live CPU feed (BNG-02)
-gnmic -a 100.127.188.90:57400 -u $GNMI_USER -p $GNMI_PASS \
-      --insecure subscribe \
-      --path /state/system/cpu[sample-period=1]/summary/total/time-used
-
-# Show containers started by containerlab
-docker ps --filter name=telemetry-
+# Live CPU usage (BNG-02)
+gnmic -a 100.127.188.90:57400 -u lab -p Nokia_ESL! --insecure \
+      subscribe --path /state/system/cpu[sample-period=1]/summary/total/time-used
 ```
 
 ---
 
-## Troubleshooting FAQ
+## Troubleshooting
 
-| Symptom                                        | Check / Fix                                                                                      |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Prometheus target **DOWN**                     | Verify `gnmic` container: `docker logs telemetry-gnmic`                                          |
-| Grafana panel shows “No data”                  | Ensure dashboard variables `$device` / `$iface` have values and metric names begin with `gnmic_` |
-| Prometheus warns **“server time out of sync”** | Run `sudo timedatectl set-ntp true` on 100.127.188.111                                           |
-| Need extra metrics                             | Edit `lab/configs/gnmic/gnmic-full-config.yml`, add path, then restart `gnmic`                   |
-
----
-
-## Contributing
-
-1. Fork ➜ feature branch ➜ pull request.
-2. GitHub Actions (CI) runs `containerlab deploy --dry-run` to catch YAML errors.
-3. Add dashboards under `lab/configs/grafana/dashboards/`.
+| Symptom                    | Check / Fix                                                        |
+| -------------------------- | ------------------------------------------------------------------ |
+| Prometheus target **DOWN** | `docker logs telemetry-gnmic` → exporter running?                  |
+| Grafana panel “No data”    | Ensure dashboard variables `$device` / `$iface` have values.       |
+| Time-sync warning          | `sudo timedatectl set-ntp true` on the server.                     |
+| Need extra metrics         | Edit `lab/configs/gnmic/gnmic-full-config.yml`, add path, redeploy |
 
 ---
 
@@ -111,19 +136,16 @@ docker ps --filter name=telemetry-
 
 MIT — see `LICENSE`.
 
-*Maintainer*: [@shashsha09](https://github.com/shashsha09)  •  open an Issue for questions or improvements.
+Maintainer  [@shashsha09](https://github.com/shashsha09) • open an Issue for questions or improvements.
 
 ````
 
-### How to use it
+---
 
-1. Save the block above as `README.md` in your repository root.  
-2. Commit and push:
+### Commit the update
 
 ```bash
 git add README.md
-git commit -m "Add full lab README"
+git commit -m "README: strip Loki/Promtail, drop secrets export"
 git push
 ````
-
-Your GitHub repo will now display this comprehensive README for anyone who lands on the project.
