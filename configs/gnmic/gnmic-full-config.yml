@@ -207,8 +207,8 @@ outputs:
     type: prometheus
     listen: :9281
     path: /metrics
-    metric-prefix:  gnmic
-    append-subscription-name: true
+    metric-prefix:  ""
+    append-subscription-name: false
     export-timestamps: true
     strings-as-labels: true
     debug: false
