@@ -45,7 +45,7 @@ cd NOS-Streaming-telemetry
 
 # deploy the lab
 containerlab deploy -t lab/clab.yml
-
+````
 
 | Service    | URL                                                        | Credentials                                  |
 | ---------- | ---------------------------------------------------------- | -------------------------------------------- |
@@ -54,7 +54,7 @@ containerlab deploy -t lab/clab.yml
 
 Tear down:
 
-```
+```bash
 containerlab destroy -t lab/clab.yml
 ```
 
@@ -78,13 +78,13 @@ configure system security user "lab"
 exit
 ```
 
-Apply to each BNG so gNMI telemetry can stream to the server.
+Apply to **each** BNG so gNMI telemetry can stream to the server.
 
 ---
 
 ## Repository Layout
 
-```
+```text
 NOS-Streaming-telemetry/
 ├─ lab/
 │  ├─ clab.yml                   # containerlab topology
@@ -108,7 +108,7 @@ NOS-Streaming-telemetry/
 
 ## Handy gNMIc Commands
 
-```
+```bash
 # Capabilities (BNG-01)
 gnmic -a 100.127.188.89:57400 -u lab -p Nokia_ESL! --insecure capabilities
 
@@ -134,16 +134,9 @@ gnmic -a 100.127.188.90:57400 -u lab -p Nokia_ESL! --insecure \
 
 MIT — see `LICENSE`.
 
-Maintainer  [@shashsha09](https://github.com/shashsha09) • open an Issue for questions or improvements.
-
-````
-
----
-
-### Commit the update
+Maintainer **[@shashsha09](https://github.com/shashsha09)** • open an Issue for questions or improvements.
 
 ```
-git add README.md
-git commit -m "README: strip Loki/Promtail, drop secrets export"
-git push
-````
+
+The image link will render once `docs/topology.png` is in place.
+```
