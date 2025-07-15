@@ -1,11 +1,11 @@
 # NOS Streaming Telemetry Lab  (BNG Express Edition)
 
-The **Nokia Streaming Telemetry Lab** showcases real-time monitoring for both  
-**Nokia Service Router OS (SR OS)** and **SR Linux** devices.
+The **Nokia Streaming Telemetry Lab** showcases real-time monitoring for   
+**Nokia Service Router OS (SR OS)** devices.
 
 This lab demonstrates how to
 
-* stream telemetry directly from SR OS / SR Linux routers with **gNMIc**
+* stream telemetry directly from SR OS routers with **gNMIc**
 * ingest the metrics into **Prometheus** and visualise them in **Grafana**
 * achieve controller-free, real-time network visibility — a lightweight
   alternative to large NMS / NSP deployments.
