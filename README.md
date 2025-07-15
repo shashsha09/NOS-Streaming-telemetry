@@ -52,6 +52,14 @@ containerlab deploy -t lab/clab.yml
 | Prometheus | [http://100.127.188.111:9090](http://100.127.188.111:9090) | —                                            |
 | Grafana    | [http://100.127.188.111:3000](http://100.127.188.111:3000) | `admin / Nokia2018!` ← change on first login |
 
+### Open the ready-made dashboard
+
+After the lab is running, go to **Grafana → Dashboards → Browse → _ST-BNG3_**  
+(the JSON file `ST-BNG3.json` is pre-provisioned under `configs/grafana/dashboards/`).
+
+All panels and variables are wired to the metrics exported by this lab.
+
+
 Tear down:
 
 ```bash
