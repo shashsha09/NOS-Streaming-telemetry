@@ -1,6 +1,6 @@
 # NOS Streaming Telemetry Lab  (BNG Express Edition)
 
-The **Nokia Streaming Telemetry Lab** showcases real-time monitoring for   
+The **Nokia Streaming Telemetry Lab** showcases real-time monitoring for  
 **Nokia Service Router OS (SR OS)** devices.
 
 This lab demonstrates how to
@@ -8,37 +8,38 @@ This lab demonstrates how to
 * stream telemetry directly from SR OS routers with **gNMIc**
 * ingest the metrics into **Prometheus** and visualise them in **Grafana**
 * achieve controller-free, real-time network visibility — a lightweight
-  alternative to large NMS / NSP deployments.
+  alternative to large NMS / NSP deployments
 
 Self-contained lab for **Nokia SR OS** streaming telemetry on a single Ubuntu
-host (stack: **containerlab → gNMIc → Prometheus → Grafana**).
+host  
+(stack: **containerlab → gNMIc → Prometheus → Grafana**).
 
 ![Streaming-telemetry topology](docs/topology.png)
 
-| Component            | Management IP       | Default Creds        | Notes                              |
-|----------------------|---------------------|----------------------|------------------------------------|
-| **Telemetry Server** | **100.127.188.111** | `root / Nokia2018!`  | Ubuntu 22/24 LTS – runs containers |
-| OTT-ESL-BNG-01       | 100.127.188.89      | `lab / Nokia_ESL!`   | gNMI port 57400                    |
-| OTT-ESL-BNG-02       | 100.127.188.90      | `lab / Nokia_ESL!`   | gNMI port 57400                    |
-| OTT-ESL-IXR-X01      | 100.127.188.162     | —                    | *(future expansion)*               |
-| OTT-ESL-IXR-X02      | 100.127.188.163     | —                    | *(future expansion)*               |
+| Component            | Management IP       | Default Creds       | Notes                              |
+|----------------------|---------------------|---------------------|------------------------------------|
+| **Telemetry Server** | **100.127.188.111** | `root / Nokia2018!` | Ubuntu 22/24 LTS – runs containers |
+| OTT-ESL-BNG-01       | 100.127.188.89      | `lab / Nokia_ESL!`  | gNMI port 57400                    |
+| OTT-ESL-BNG-02       | 100.127.188.90      | `lab / Nokia_ESL!`  | gNMI port 57400                    |
+| OTT-ESL-IXR-X01      | 100.127.188.162     | —                   | *(future expansion)*               |
+| OTT-ESL-IXR-X02      | 100.127.188.163     | —                   | *(future expansion)*               |
 
 ---
 
 ## Prerequisites
 
-| Tool              | Install (Ubuntu)                                                                                                   | Purpose            |
-|-------------------|--------------------------------------------------------------------------------------------------------------------|--------------------|
-| **Git**           | `sudo apt update && sudo apt install -y git`                                                                       | Clone repository   |
-| **Docker**        | `sudo apt install -y docker.io`  ➜  `sudo usermod -aG docker $USER && newgrp docker`                               | Container runtime  |
-| **containerlab**  | `curl -sL https://get.containerlab.dev \| bash`                                                                    | Deploy topology    |
-| **gNMIc CLI** *(optional)* | `bash -c "$(curl -sL https://get-gnmic.openconfig.net)"`                                                   | Ad-hoc gNMI queries|
+| Tool              | Install (Ubuntu)                                                                                   | Purpose            |
+|-------------------|----------------------------------------------------------------------------------------------------|--------------------|
+| **Git**           | `sudo apt update && sudo apt install -y git`                                                       | Clone repository   |
+| **Docker**        | `sudo apt install -y docker.io`  → `sudo usermod -aG docker $USER && newgrp docker`                | Container runtime  |
+| **containerlab**  | `curl -sL https://get.containerlab.dev \| bash`                                                    | Deploy topology    |
+| **gNMIc CLI** *(optional)* | `bash -c "$(curl -sL https://get-gnmic.openconfig.net)"`                                  | Ad-hoc gNMI tests  |
 
 ---
 
 ## Quick Start
 
-```
+```bash
 git clone https://github.com/shashsha09/NOS-Streaming-telemetry.git
 cd NOS-Streaming-telemetry
 
